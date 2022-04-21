@@ -2,6 +2,9 @@ pragma solidity 0.8.4;
 
 contract FalconContract {
 
+    event AddTweet(address recipient, uint tweetId);
+    event DeleteTweet(uint tweetId, bool isDeleted);
+
     struct Tweet {
         uint id;
         address username;
@@ -13,4 +16,70 @@ contract FalconContract {
 
 
     // Mapping of Tweet if to the wallet address of the user
+    mapping(uint256 => address) tweetToOwner;
+
+    // Method to be called by our frontend when trying to add a new Tweet
+    function addTweet(string memory tweetText, bool isDeleted) external {
+        uint tweetId = tweets.length;
+        tweets.push(Tweet(tweetId, msg.sender, tweetText, isDeleted));
+        tweetToOwner[tweetId] = msg.sender;
+        emit AddTweet(msg.sender, tweetId);
+    }
+
+    // Method to get all the Tweets
+    function getAllTweets() external view returns (Tweet[] memory) {
+
+        Tweet[] memory temp = new Tweet[] (tweets.length);
+
+        // put all the non delted tweets in the temp array 
+        uint counter = 0;
+        for(uint i=0; i<tweets.length; i++) {
+            if(tweets[i].isDeleted == false) {
+                temp[counter] = tweets[i];
+                counter++;
+            }
+        }
+        // move the tweets from temp array to results array 
+        Tweet[] memory result = new Tweet[](counter);
+        for(uint i=0; i<counter; i++) {
+            result[i] = temp[i];
+        }
+
+        return result;
+
+    }
+
+
+    // Method to get only my Tweets
+    function getMyTweets() external view returns (Tweet[] memory) {
+
+        Tweet[] memory temp = new Tweet[] (tweets.length);
+
+
+        // put all the non delted tweets in the temp array 
+        uint counter = 0;
+        for(uint i=0; i<tweets.length; i++) {
+            if(tweetToOwner[i] == msg.sender &&  tweets[i].isDeleted == false) {
+                temp[counter] = tweets[i];
+                counter++;
+            }
+        }
+        // move the tweets from temp array to results array 
+        Tweet[] memory result = new Tweet[](counter);
+        for(uint i=0; i<counter; i++) {
+            result[i] = temp[i];
+        }
+
+        return result;
+
+    }
+
+
+    // Method to Delete a tweet
+    function deleteTweet(uint tweetId, bool isDeleted) external {
+        if(tweetToOwner[tweetId] == msg.sender) {
+            tweets[tweetId].isDeleted = isDeleted;
+            emit DeleteTweet(tweetId, isDeleted);
+        }
+    }
 }
