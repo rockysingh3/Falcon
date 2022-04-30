@@ -13,7 +13,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
-// You need to export an object to set up your config
+// You need to export an object to set up your conf
 // Go to https://hardhat.org/config/ to learn more
 
 /**
@@ -23,7 +23,7 @@ module.exports = {
   solidity: "0.8.4",
   networks: {
     goerli: {
-      url: process.env.ALCHEMY_RINKEBY_URL,
+      url: process.env.ALCHEMY_GOERLI_URL,
       accounts: [process.env.ACCOUNT_PRIVATE_KEY]
     }
   }
